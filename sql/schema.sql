@@ -1,0 +1,46 @@
+CREATE DATABASE IF NOT EXISTS finanzas CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE finanzas;
+
+CREATE TABLE IF NOT EXISTS configuracion (
+  id INT PRIMARY KEY,
+  tope_libre DECIMAL(10,2) NOT NULL DEFAULT 0,
+  bbva_corte_dia INT NOT NULL DEFAULT 6,
+  bbva_limite_dia INT NOT NULL DEFAULT 26
+);
+
+INSERT INTO configuracion (id,tope_libre,bbva_corte_dia,bbva_limite_dia)
+VALUES (1,0,6,26)
+ON DUPLICATE KEY UPDATE id=id;
+
+CREATE TABLE IF NOT EXISTS gastos_fijos (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nombre VARCHAR(100) NOT NULL,
+  monto DECIMAL(10,2) NOT NULL,
+  metodo VARCHAR(60) NOT NULL,
+  activo TINYINT(1) NOT NULL DEFAULT 1
+);
+
+CREATE TABLE IF NOT EXISTS deudas (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nombre VARCHAR(100) NOT NULL,
+  total_deuda DECIMAL(10,2) NOT NULL,
+  pago_mensual DECIMAL(10,2) NOT NULL,
+  saldo_actual DECIMAL(10,2) NOT NULL,
+  activo TINYINT(1) NOT NULL DEFAULT 1
+);
+
+CREATE TABLE IF NOT EXISTS ingresos (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  quincena DECIMAL(10,2) NOT NULL,
+  extra DECIMAL(10,2) NOT NULL DEFAULT 0,
+  fecha DATE NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS gastos_libres (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  descripcion VARCHAR(150) NOT NULL,
+  categoria VARCHAR(60) NOT NULL DEFAULT 'General',
+  monto DECIMAL(10,2) NOT NULL,
+  metodo VARCHAR(60) NOT NULL,
+  fecha DATE NOT NULL
+);

@@ -1,0 +1,418 @@
+        * {
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(145deg, #7c3aed 0%, #1e1b4b 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 1.5rem;
+            transition: filter 0.3s ease;
+        }
+
+        /* Cuando el modal está abierto */
+        body.modal-open {
+            overflow: hidden;
+        }
+
+        body.modal-open .login-container {
+            filter: blur(8px) brightness(0.7);
+            pointer-events: none;
+            transition: filter 0.3s ease;
+        }
+
+        .login-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            transition: filter 0.3s ease;
+        }
+
+        .login-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            border-radius: 2.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            padding: 1.5rem 2rem .5rem;
+            max-width: 440px;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        /* Modal de registro */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 1.5rem;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-card {
+            background: white;
+            border-radius: 2.5rem;
+            padding: 2.5rem;
+            max-width: 480px;
+            width: 100%;
+            box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.5);
+            animation: modalAppear 0.3s ease;
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        @keyframes modalAppear {
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #6b7280;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: #f3f4f6;
+            color: #1e1b4b;
+        }
+
+        .modal-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1e1b4b;
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-subtitle {
+            color: #6b7280;
+            margin-bottom: 2rem;
+        }
+
+        /* Estados de error */
+        .form-floating {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-floating>.form-control {
+            border-radius: 18px;
+            border: 1.5px solid rgba(79, 70, 229, 0.2);
+            background: rgba(255, 255, 255, 0.9);
+            padding: 1.2rem 0.75rem 0.4rem 1.2rem;
+            height: auto;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .form-floating>.form-control.error {
+            border-color: #dc2626;
+            background-color: rgba(220, 38, 38, 0.05);
+            padding-right: 2.5rem;
+            /* espacio para el icono */
+        }
+
+        .form-floating>.form-control.error:focus {
+            border-color: #dc2626;
+            box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.15);
+        }
+
+        .error-message {
+            color: #dc2626;
+            font-size: 0.8rem;
+            margin-top: 0.3rem;
+            margin-left: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .error-message i {
+            font-size: 0.9rem;
+        }
+
+        /* Input icon wrapper */
+        .input-icon-wrapper {
+            position: relative;
+        }
+
+        .input-icon-wrapper i {
+            position: absolute;
+            left: 8%;
+            top: 65%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            color: #4f46e5;
+            font-size: 1.2rem;
+        }
+
+        .input-icon-wrapper .form-control {
+            padding-left: 3rem !important;
+        }
+
+        /* Icono de candado más nítido */
+        .bi-lock-fill,
+        .bi-envelope-fill,
+        .bi-person-fill {
+            filter: drop-shadow(0 2px 2px rgba(79, 70, 229, 0.2));
+        }
+
+        /* Botón primario - único sólido */
+        .btn-login {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            border: none;
+            border-radius: 40px;
+            padding: 0.9rem 0;
+            font-weight: 600;
+            font-size: 1.2rem;
+            letter-spacing: 0.3px;
+            color: white;
+            box-shadow: 0 8px 18px -6px rgba(79, 70, 229, 0.6);
+            transition: 0.15s;
+            margin-top: 0.5rem;
+            margin-bottom: 1.4rem;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .btn-login:hover {
+            background: linear-gradient(135deg, #4338ca, #6d28d9);
+            transform: scale(1.01);
+            box-shadow: 0 10px 22px -6px rgba(79, 70, 229, 0.8);
+        }
+
+        .btn-login:active {
+            transform: scale(0.98);
+        }
+
+        /* Botones ghost / enlaces */
+        .footer-links {
+            display: flex;
+            flex-direction: column;
+            gap: 0px;
+            margin-top: 1.5rem;
+        }
+
+        .ghost-button {
+            background: transparent;
+            border: 1.5px solid #4f46e5;
+            border-radius: 40px;
+            padding: 0.7rem 0;
+            font-weight: 600;
+            font-size: 1rem;
+            color: #4f46e5;
+            width: 100%;
+            transition: all 0.2s;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .ghost-button:hover {
+            background: rgba(79, 70, 229, 0.1);
+            transform: scale(1.01);
+        }
+
+        .ghost-button:active {
+            transform: scale(0.98);
+        }
+
+        .text-link {
+            background: transparent;
+            border: none;
+            color: #4f46e5;
+            font-weight: 500;
+            text-decoration: none;
+            padding: 0px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            justify-content: center;
+            width: 100%;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .text-link:hover {
+            color: #1e1b4b;
+            background: rgba(79, 70, 229, 0.05);
+            border-radius: 40px;
+        }
+
+        /* Divider */
+        .divider {
+            display: flex;
+            align-items: center;
+            color: #9ca3af;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: "";
+            flex: 1;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .divider::before {
+            margin-right: 1rem;
+        }
+
+        .divider::after {
+            margin-left: 1rem;
+        }
+
+        /* Botones de tiendas (App Store / Play Store) */
+        .store-buttons {
+            display: flex;
+            gap: 0.8rem;
+            justify-content: center;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .store-button {
+            height: 45px;
+            width: auto;
+            transition: opacity 0.2s;
+        }
+
+        .store-button:hover {
+            opacity: 0.8;
+        }
+
+        .store-button img {
+            height: 100%;
+            width: auto;
+        }
+
+        /* Badges responsivos eliminados - el diseño se adapta solo */
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            body {
+                padding: 1rem;
+            }
+
+            .login-card,
+            .modal-card {
+                padding: 2rem 1.5rem;
+                border-radius: 2rem;
+            }
+
+            .brand-icon {
+                width: 60px;
+                height: 60px;
+                font-size: 2rem;
+            }
+
+            h2 {
+                font-size: 1.8rem;
+            }
+
+            .modal-title {
+                font-size: 1.8rem;
+            }
+        }
+
+        .brand-icon {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            width: 70px;
+            height: 70px;
+            border-radius: 30px 30px 30px 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem auto;
+            font-size: 2.4rem;
+            box-shadow: 0 10px 20px -5px rgba(79, 70, 229, 0.5);
+        }
+
+        h2 {
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: #1e1b4b;
+        }
+
+        .sub-head {
+            color: #4f46e5;
+            font-weight: 500;
+            font-size: 0.95rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-check-label {
+            color: #1e1b4b;
+            font-weight: 500;
+        }
+
+        .form-check-input:checked {
+            background-color: #4f46e5;
+            border-color: #4f46e5;
+        }
+
+        .security-note {
+            color: #4f46e5;
+            opacity: 0.7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 2rem;
+            font-size: 0.9rem;
+        }
+
+        /* Ejemplo de validación - mostramos un error por defecto */
+        .email-error {
+            display: none;
+        }
+
+        .password-error {
+            display: none;
+            /* este está oculto para mostrar que puede variar */
+        }
+
+        .form-floating>label {
+            position: absolute;
+            top: -13px;
+        }

@@ -1,0 +1,5 @@
+.card-kpi{border:0;border-radius:16px;box-shadow:0 8px 22px rgba(0,0,0,.06)}
+.kpi-label{font-size:.85rem;color:#6c757d}
+.kpi-value{font-size:1.4rem;font-weight:700}
+.badge-soft{background:rgba(13,110,253,.08);color:#0d6efd;border:1px solid rgba(13,110,253,.12)}
+.table thead th{white-space:nowrap}

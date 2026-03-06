@@ -1,0 +1,296 @@
+<?php
+require_once __DIR__ . '/config.php';
+
+$ym = $_GET['ym'] ?? current_ym();
+
+$pageTitle = "Dashboard";
+include __DIR__ . '/includes/header.php';
+?>
+
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+    <div>
+        <h3 class="mb-0">Resumen del mes</h3>
+        <div class="text-muted">Periodo: <span id="periodStart">...</span> a <span id="periodEnd">...</span></div>
+    </div>
+    <form class="d-flex gap-2" method="get">
+        <input type="month" class="form-control" name="ym" value="<?= h($ym) ?>">
+        <button class="btn btn-dark">Ver</button>
+    </form>
+</div>
+
+<div id="dashboardError" class="alert alert-danger d-none" role="alert"></div>
+
+<div class="row g-3">
+    <div class="col-md-4">
+        <div class="card card-kpi p-3">
+            <div class="kpi-label">Ingreso del mes</div>
+            <div class="kpi-value" id="ingresoValue">$0.00</div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card card-kpi p-3">
+            <div class="kpi-label">Gastos fijos (activos)</div>
+            <div class="kpi-value" id="fijosValue">$0.00</div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card card-kpi p-3">
+            <div class="kpi-label">Pagos de deudas (activos)</div>
+            <div class="kpi-value" id="deudasValue">$0.00</div>
+        </div>
+    </div>
+
+    <div class="col-12">
+        <div class="card card-kpi p-3">
+            <div class="kpi-label">Saldo real tarjeta BBVA</div>
+            <div class="kpi-value" id="saldoRealBbvaValue">$0.00</div>
+            <div class="text-muted small">Cargos acumulados - pagos realizados.</div>
+            <div class="mt-2">
+                <a class="btn btn-outline-danger btn-sm" href="/finanzas_bao/modules/bbva.php">Agregar Pago</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card card-kpi p-3">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="kpi-label">Gastos libres (este mes)</div>
+                    <div class="kpi-value" id="libresValue">$0.00</div>
+                </div>
+                <span class="badge badge-soft" id="topeValue">Tope: $0.00</span>
+            </div>
+            <div class="mt-2" id="topeProgressWrapper" hidden>
+                <div class="small text-muted mb-1">Uso del tope</div>
+                <div class="progress">
+                    <div class="progress-bar" id="topeProgressBar" style="width: 0%"></div>
+                </div>
+                <div class="small text-muted mt-1" id="topePctText">0% usado</div>
+            </div>
+            <div class="text-muted small mt-2" id="topeEmptyText">Configura un tope mensual en "Tope &amp; BBVA".</div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card card-kpi p-3">
+            <div class="kpi-label">Libre disponible</div>
+            <div class="kpi-value" id="libreDisponibleValue">$0.00</div>
+            <div class="text-muted small">Ingreso - (fijos + deudas + libres).</div>
+        </div>
+    </div>
+
+    <div class="col-12">
+        <div class="card card-kpi p-3">
+            <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
+                <div>
+                    <div class="kpi-label">Proximo pago BBVA (estimado)</div>
+                    <div class="kpi-value" id="bbvaPagoEstimadoValue">$0.00</div>
+                    <div class="text-muted small">
+                        Ciclo: <span id="bbvaCycleStart">...</span> -> <span id="bbvaCycleEnd">...</span> • Limite:
+                        <span id="bbvaDueDate">...</span>
+                    </div>
+                </div>
+                <div class="text-end">
+                    <div class="small text-muted" id="bbvaLibresCicloValue">Libres en ciclo (BBVA): $0.00</div>
+                    <div class="small text-muted" id="bbvaFijosValue">Fijos BBVA (aprox): $0.00</div>
+                    <a class="btn btn-outline-dark btn-sm mt-2" href="/finanzas_bao/modules/configuracion.php">Configurar</a>
+                </div>
+            </div>
+            <div class="text-muted small mt-2">Los "fijos BBVA" se suman como estimado mensual. Para exactitud por dia de cobro, se agrega ese campo.</div>
+        </div>
+    </div>
+</div>
+
+<hr class="my-4">
+
+<div class="row g-3">
+    <div class="col-lg-6">
+        <div class="card card-kpi p-3">
+            <h6 class="mb-3">Gastos libres por categoria (mes)</h6>
+            <canvas id="chartCategoria" height="140"></canvas>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card card-kpi p-3">
+            <h6 class="mb-3">Gastos libres por metodo (mes)</h6>
+            <canvas id="chartMetodo" height="140"></canvas>
+        </div>
+    </div>
+
+    <div class="col-12">
+        <div class="card card-kpi p-3">
+            <h6 class="mb-3">Ultimos 6 meses: Ingresos vs Gasto total</h6>
+            <canvas id="chartSerie" height="110"></canvas>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+const currentYm = <?= json_encode($ym) ?>;
+const moneyFormatter = new Intl.NumberFormat('es-MX', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+});
+
+let categoriaChart;
+let metodoChart;
+let serieChart;
+
+function formatMoney(value) {
+    return `$${moneyFormatter.format(Number(value || 0))}`;
+}
+
+function setText(id, value) {
+    const element = document.getElementById(id);
+    if (element) {
+        element.textContent = value;
+    }
+}
+
+function renderResumen(data) {
+    setText('periodStart', data.periodo.start);
+    setText('periodEnd', data.periodo.end);
+    setText('ingresoValue', formatMoney(data.resumen.ingreso));
+    setText('fijosValue', formatMoney(data.resumen.fijos));
+    setText('deudasValue', formatMoney(data.resumen.deudas_pago));
+    setText('libresValue', formatMoney(data.resumen.libres));
+    setText('topeValue', `Tope: ${formatMoney(data.resumen.tope)}`);
+
+    const saldoReal = document.getElementById('saldoRealBbvaValue');
+    saldoReal.textContent = formatMoney(Math.abs(data.bbva.saldo_real));
+    saldoReal.classList.remove('text-danger', 'text-success');
+    saldoReal.classList.add(data.bbva.saldo_real > 0 ? 'text-danger' : 'text-success');
+
+    const libreDisponible = document.getElementById('libreDisponibleValue');
+    libreDisponible.textContent = formatMoney(data.resumen.libre_disponible);
+    libreDisponible.classList.toggle('text-danger', Number(data.resumen.libre_disponible) < 0);
+
+    const progressWrapper = document.getElementById('topeProgressWrapper');
+    const emptyText = document.getElementById('topeEmptyText');
+    const progressBar = document.getElementById('topeProgressBar');
+    const topePct = Math.round(Number(data.resumen.tope_pct || 0));
+
+    if (Number(data.resumen.tope) > 0) {
+        progressWrapper.hidden = false;
+        emptyText.hidden = true;
+        progressBar.style.width = `${topePct}%`;
+        progressBar.className = 'progress-bar';
+
+        if (topePct >= 100) {
+            progressBar.classList.add('bg-danger');
+        } else if (topePct >= 80) {
+            progressBar.classList.add('bg-warning');
+        }
+
+        setText('topePctText', `${topePct}% usado`);
+    } else {
+        progressWrapper.hidden = true;
+        emptyText.hidden = false;
+    }
+}
+
+function renderBbva(data) {
+    setText('bbvaPagoEstimadoValue', formatMoney(data.bbva.proximo_pago_estimado));
+    setText('bbvaCycleStart', data.bbva.cycle_start);
+    setText('bbvaCycleEnd', data.bbva.cycle_end_cut);
+    setText('bbvaDueDate', data.bbva.due_date);
+    setText('bbvaLibresCicloValue', `Libres en ciclo (BBVA): ${formatMoney(data.bbva.libres_ciclo)}`);
+    setText('bbvaFijosValue', `Fijos BBVA (aprox): ${formatMoney(data.bbva.fijos)}`);
+}
+
+function buildCharts(data) {
+    if (categoriaChart) categoriaChart.destroy();
+    if (metodoChart) metodoChart.destroy();
+    if (serieChart) serieChart.destroy();
+
+    categoriaChart = new Chart(document.getElementById('chartCategoria'), {
+        type: 'bar',
+        data: {
+            labels: data.charts.categoria.labels,
+            datasets: [{
+                label: 'Monto',
+                data: data.charts.categoria.data
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+
+    metodoChart = new Chart(document.getElementById('chartMetodo'), {
+        type: 'doughnut',
+        data: {
+            labels: data.charts.metodo.labels,
+            datasets: [{
+                label: 'Monto',
+                data: data.charts.metodo.data
+            }]
+        },
+        options: {
+            responsive: true
+        }
+    });
+
+    serieChart = new Chart(document.getElementById('chartSerie'), {
+        type: 'line',
+        data: {
+            labels: data.charts.serie.labels,
+            datasets: [{
+                label: 'Ingresos',
+                data: data.charts.serie.income,
+                tension: 0.25
+            }, {
+                label: 'Gastos (fijos+deudas+libres)',
+                data: data.charts.serie.spend,
+                tension: 0.25
+            }]
+        },
+        options: {
+            responsive: true
+        }
+    });
+}
+
+function showError(message) {
+    const alert = document.getElementById('dashboardError');
+    alert.textContent = message;
+    alert.classList.remove('d-none');
+}
+
+async function loadDashboard(ym) {
+    const response = await fetch(`./dashboard_data.php?ym=${encodeURIComponent(ym)}`, {
+        headers: {
+            Accept: 'application/json'
+        }
+    });
+
+    if (!response.ok) {
+        throw new Error('No se pudo obtener la informacion del dashboard.');
+    }
+
+    const payload = await response.json();
+    if (!payload.ok) {
+        throw new Error(payload.message || 'No se pudo obtener la informacion del dashboard.');
+    }
+
+    renderResumen(payload.data);
+    renderBbva(payload.data);
+    buildCharts(payload.data);
+}
+
+loadDashboard(currentYm).catch((error) => {
+    console.error(error);
+    showError(error.message);
+});
+</script>
+
+<?php include __DIR__ . '/includes/footer.php'; ?>
