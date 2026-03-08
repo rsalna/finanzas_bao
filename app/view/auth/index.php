@@ -63,7 +63,7 @@
                 </div>
 
                 <!-- Botón principal sólido -->
-                <button type="submit" class="btn-login">
+                <button type="submit" id="btnInc" class="btn-login">
                     <i class="bi bi-box-arrow-in-right me-2"></i> Iniciar sesión
                 </button>
 
@@ -139,7 +139,7 @@
                 </div>
 
                 <!-- Botón de registro -->
-                <button type="submit" class="btn-login w-100">
+                <button type="submit" id="btnReg" class="btn-login w-100">
                     <i class="bi bi-person-check me-2"></i> Registrarme
                 </button>
 
@@ -159,7 +159,7 @@
     <script
         src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js">
     </script>
-    <script src="../../../assets/js/login.js"></script>
+    <script src="assets/js/login.js"></script>
 </body>
 
 </html>

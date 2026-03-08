@@ -12,6 +12,13 @@ INSERT INTO configuracion (id,tope_libre,bbva_corte_dia,bbva_limite_dia)
 VALUES (1,0,6,26)
 ON DUPLICATE KEY UPDATE id=id;
 
+CREATE TABLE IF NOT EXISTS users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  username VARCHAR(100) NOT NULL,
+  password VARCHAR(255) NOT NULL,
+  correo VARCHAR(100) NOT NULL UNIQUE
+);
+
 CREATE TABLE IF NOT EXISTS gastos_fijos (
   id INT AUTO_INCREMENT PRIMARY KEY,
   nombre VARCHAR(100) NOT NULL,

@@ -21,13 +21,13 @@ class User
         return $stmt->execute();
     }
 
-    public static function login($username, $passwords)
+    public static function login($username, $password)
     {
-
+    
         $conn = Database::connect();
 
         $stmt = $conn->prepare(
-            "SELECT * FROM users WHERE username = ?"
+            "SELECT * FROM users WHERE correo = ?"
         );
 
         $stmt->bind_param("s", $username);
@@ -35,8 +35,11 @@ class User
         $result = $stmt->get_result();
 
         if ($user = $result->fetch_assoc()) {
-            if (password_verify($passwords, $user['password'])) {
+            if (password_verify($password, $user['pass'])) {
+                // echo 'si concuerda la contraseña '.$passwords.' - '.$user['pass'];
                 return $user;
+                // }else{
+                // echo 'no concuerda la contraseña '.$passwords.' - '.$user['pass'];
             }
         }
 
